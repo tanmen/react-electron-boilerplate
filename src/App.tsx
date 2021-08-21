@@ -1,4 +1,5 @@
 import React from 'react';
+import {HashRouter, Link, Route} from "react-router-dom";
 import logo from './logo.svg';
 import './App.css';
 
@@ -10,14 +11,15 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <HashRouter>
+          <Route strict path="/">
+            INDEX
+            <Link to="/test">test</Link>
+          </Route>
+          <Route strict path="/test">
+            INDEX
+          </Route>
+        </HashRouter>
       </header>
     </div>
   );

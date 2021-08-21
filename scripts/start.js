@@ -27,13 +27,16 @@ const {
   prepareProxy,
   prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
-const openBrowser = require('react-dev-utils/openBrowser');
 const semver = require('semver');
 const paths = require('../config/paths');
 const configFactory = require('../config/webpack.config');
+const configElectronFactory = require('../config/electron/webpack.config');
 const createDevServerConfig = require('../config/webpackDevServer.config');
+const electronDevServerConfig = require('../config/electron/webpackDevServer.config');
 const getClientEnvironment = require('../config/env');
 const react = require(require.resolve('react', { paths: [paths.appPath] }));
+const electron = require('electron');
+const {spawn} = require('child_process');
 
 const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 const useYarn = fs.existsSync(paths.yarnLockFile);
@@ -81,6 +84,7 @@ checkBrowsers(paths.appPath, isInteractive)
     }
 
     const config = configFactory('development');
+    const configElectron = configElectronFactory('development');
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
     const appName = require(paths.appPackageJson).name;
 
@@ -109,6 +113,7 @@ checkBrowsers(paths.appPath, isInteractive)
       tscCompileOnError,
       webpack,
     });
+    const electronCompiler = webpack(configElectron);
     // Load proxy config
     const proxySetting = require(paths.appPackageJson).proxy;
     const proxyConfig = prepareProxy(
@@ -122,6 +127,9 @@ checkBrowsers(paths.appPath, isInteractive)
       urls.lanUrlForConfig
     );
     const devServer = new WebpackDevServer(compiler, serverConfig);
+    const electronDevServer = new WebpackDevServer(electronCompiler, electronDevServerConfig);
+    // Electron process
+    let electronProcess;
     // Launch WebpackDevServer.
     devServer.listen(port, HOST, err => {
       if (err) {
@@ -140,12 +148,27 @@ checkBrowsers(paths.appPath, isInteractive)
       }
 
       console.log(chalk.cyan('Starting the development server...\n'));
-      openBrowser(urls.localUrlForBrowser);
+    });
+
+    compiler.hooks.done.tap('done', () => {
+      electronProcess = spawn(electron, ['.', ...process.argv.slice(2)], {stdio: 'inherit', windowsHide: false})
+      electronProcess.on('close', function (code, signal) {
+        if (code === null) {
+          console.error(electron, 'exited with signal', signal);
+          process.exit(1);
+        }
+        process.exit(code);
+      });
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function (sig) {
       process.on(sig, function () {
+        if (electronProcess?.killed === false) {
+          electronProcess.kill(sig);
+        }
         devServer.close();
+        electronDevServer.close();
+        console.log('Closing applications...');
         process.exit();
       });
     });
@@ -153,7 +176,12 @@ checkBrowsers(paths.appPath, isInteractive)
     if (process.env.CI !== 'true') {
       // Gracefully exit when stdin ends
       process.stdin.on('end', function () {
+        if (electronProcess?.killed === false) {
+          electronProcess.kill();
+        }
         devServer.close();
+        electronDevServer.close();
+        console.log('Closing applications...');
         process.exit();
       });
     }

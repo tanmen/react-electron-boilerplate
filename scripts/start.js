@@ -150,14 +150,19 @@ checkBrowsers(paths.appPath, isInteractive)
       console.log(chalk.cyan('Starting the development server...\n'));
     });
 
-    compiler.hooks.done.tap('done', () => {
+    electronCompiler.hooks.afterCompile.tap('done', () => {
+      if (electronProcess?.killed === false) {
+        electronProcess.kill(15);
+      }
       electronProcess = spawn(electron, ['.', ...process.argv.slice(2)], {stdio: 'inherit', windowsHide: false})
-      electronProcess.on('close', function (code, signal) {
+      electronProcess.on('close', (code, signal) => {
         if (code === null) {
           console.error(electron, 'exited with signal', signal);
           process.exit(1);
+        } else if (code !== 0) {
+          console.error(electron, 'exited with code', code, 'with signal', signal);
+          process.exit(1);
         }
-        process.exit(code);
       });
     });
 
@@ -168,7 +173,6 @@ checkBrowsers(paths.appPath, isInteractive)
         }
         devServer.close();
         electronDevServer.close();
-        console.log('Closing applications...');
         process.exit();
       });
     });
@@ -181,7 +185,6 @@ checkBrowsers(paths.appPath, isInteractive)
         }
         devServer.close();
         electronDevServer.close();
-        console.log('Closing applications...');
         process.exit();
       });
     }

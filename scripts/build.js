@@ -127,6 +127,7 @@ checkBrowsers(paths.appPath, isInteractive)
       }
     }
   )
+  .then(() => require('electron-builder/cli'))
   .catch(err => {
     if (err && err.message) {
       console.log(err.message);

@@ -1,0 +1,15 @@
+{
+  "productName": "React Electron Boilerplate",
+  "artifactName": "${productName}-${version}.${ext}",
+  "win": {
+    "target": "nsis",
+    "icon": "build/logo512.png"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "build/logo512.png"
+  },
+  "files": [
+    "build/**/*"
+  ]
+}

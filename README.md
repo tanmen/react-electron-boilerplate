@@ -1,5 +1,7 @@
 # Getting Started with Create React App for Electron
 
+This boilerplate was created because there are many libraries where create-react-app and electron are not well integrated.
+
 ## Available Scripts
 
 In the project directory, you can run:

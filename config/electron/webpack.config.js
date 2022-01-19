@@ -1,7 +1,5 @@
 'use strict';
 
-const WriteFilePlugin = require('write-file-webpack-plugin');
-
 const paths = require('../paths');
 
 module.exports = function (webpackEnv) {
@@ -25,9 +23,6 @@ module.exports = function (webpackEnv) {
       ]
     },
     devtool: 'inline-source-map',
-    plugins: [
-      new WriteFilePlugin()
-    ],
     resolve: {
       extensions: ['.ts', '.js', '.json']
     }

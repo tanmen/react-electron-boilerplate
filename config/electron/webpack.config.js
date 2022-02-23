@@ -9,8 +9,12 @@ module.exports = function (webpackEnv) {
   return {
     target: 'electron-main',
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
-    entry: paths.electronMainJs,
+    entry: {
+      main: paths.electronMainJs,
+      preload: paths.electronPreloadJs
+    },
     output: {
+      filename: '[name].js',
       path: paths.appBuild,
     },
     module: {
@@ -22,7 +26,7 @@ module.exports = function (webpackEnv) {
         }
       ]
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     resolve: {
       extensions: ['.ts', '.js', '.json']
     }

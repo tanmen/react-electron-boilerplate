@@ -58,6 +58,7 @@ module.exports = {
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
   electronMainJs: resolveModule(resolveApp, 'electron/main'),
+  electronPreloadJs: resolveModule(resolveApp, 'electron/preload'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
   appPackageJson: resolveApp('package.json'),
   electronSrc: resolveApp( 'electron'),

@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
 import {app, BrowserWindow} from "electron";
+import path from "path";
 import {isDevelopment} from "./utils";
 
 function createWindow() {
@@ -8,7 +9,7 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: require('./preload')
+      preload: path.join(__dirname, 'preload.js')
     }
   })
 
